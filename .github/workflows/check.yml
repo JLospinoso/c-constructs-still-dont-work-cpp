@@ -1,0 +1,29 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - cc: gcc
+            cxx: g++
+          - cc: clang
+            cxx: clang++
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install compilers
+        run: sudo apt-get update && sudo apt-get install -y gcc g++ clang
+
+      - name: Check examples
+        run: CC=${{ matrix.toolchain.cc }} CXX=${{ matrix.toolchain.cxx }} ./scripts/check.sh

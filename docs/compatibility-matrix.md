@@ -1,0 +1,12 @@
+# Compatibility matrix
+
+| Status | Construct | C17 | C23 | C++17 | C++20 / C++23 | Practical advice |
+|---|---|---|---|---|---|---|
+| Still different | `void*` to object pointer | Implicit conversion from `malloc` is idiomatic C. | Same. | No implicit conversion. | Same. | In C++, do not make `malloc` your default allocation strategy. If you must use it, cast deliberately and handle lifetime deliberately. |
+| Changed since 2019 | `malloc` and object lifetime | C allocation creates storage used as objects by C’s rules. | Same broad C model. | Easy to write code that compiles with a cast but has no C++ object lifetime. | Some implicit-lifetime cases are repaired. Constructors still are not called. | Distinguish storage, lifetime, initialization, ownership, and destruction. |
+| Still different | Discarding `const` | Constraint violation; compilers often warn. | Same basic concern. | Ill-formed without a cast. | Same. | A cast may compile. It does not make writes to actually-`const` objects defined. |
+| Changed in C23 | Enums | Enumerator constants are integer-like; enum objects convert freely enough to surprise C++ programmers. | C23 adds fixed underlying types and more explicit typing rules for enumerators. | Enum types are distinct; `int` to enum is not implicit. | Same; `enum class` remains stricter. | Use `enum class` for C++ APIs. Use plain enums only when ABI or C interop demands it. |
+| Changed in C23 | `void f()` | No prototype in the old sense; mismatched calls may compile, but are not defined. | Behaves as though declared with `void`. | Means no parameters. | Same. | For shared headers, still write `void f(void)` in C-facing APIs unless you control the language mode. |
+| Changed since 2019 | Designated initializers | Full C-style designated initialization, including out-of-order, array, nested, and mixed forms. | Same family, with C23 evolution elsewhere. | Not standard C++. | Standard, but narrower than C. | Useful in C++20, but only for aggregates, direct members, declaration order, and all-designated clauses. |
+| Extension trap | `restrict` | Standard C99 qualifier. | Still standard C, with C23 wording updates. | Not standard C++. | Not standard C++. | Use compiler extensions only behind a portability boundary. |
+| Still different | Flexible array members | Standard C99 trailing-array pattern. | Still standard C. | Not standard C++. | Not standard C++. | Keep the C layout at the ABI edge; translate into `span`, `vector`, or an explicit header/payload representation. |
